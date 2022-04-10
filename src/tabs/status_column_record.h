@@ -90,6 +90,7 @@ public:
    * @returns The number of visible rows.
    */
   uint filter_rows();
+  uint count_child_rows(const Gtk::TreeModel::iterator &node);
 
   Gtk::TreeRow get_parent_by_pid(unsigned int pid);
   Gtk::TreeRow get_parent_by_pid(unsigned int pid, Gtk::TreeRow &parent);

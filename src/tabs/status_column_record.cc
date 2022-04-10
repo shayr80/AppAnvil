@@ -52,6 +52,29 @@ uint StatusColumnRecord::filter_rows()
     if(visible) {
       num_visible++;
     }
+    if (!row->children().empty()) {
+      num_visible += count_child_rows(row);
+    }
+  }
+
+  return num_visible;
+}
+
+uint StatusColumnRecord::count_child_rows(const Gtk::TreeModel::iterator &node)
+{
+  uint num_visible = 0;
+  auto children = node->children();
+
+  for(auto row = children.begin(); row != children.end(); row++) {
+    bool visible = filter_fun(row);
+
+    if(visible) {
+      num_visible++;
+    }
+
+    if (!row->children().empty()) {
+      num_visible += count_child_rows(row);
+    }
   }
 
   return num_visible;

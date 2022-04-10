@@ -52,6 +52,7 @@ void Processes::refresh()
 {
   uint num_visible = col_record->filter_rows();
   Status::set_status_label_text(" " + std::to_string(num_visible) + " matching processes");
+  Status::get_view()->expand_all();
 }
 
 Processes::Processes() : col_record{StatusColumnRecord::create(Status::get_view(), col_names)}
