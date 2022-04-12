@@ -56,13 +56,13 @@ bool Status::filter(const std::string &str, const std::string &rule, const bool 
 bool Status::filter(const Gtk::TreeModel::iterator &node)
 {
   std::string data;
-  unsigned int uintData = 0;
-  bool re = false;
   const uint num_columns = s_view->get_n_columns();
   auto treeModel         = s_view->get_model();
 
   for(uint i = 0; i < num_columns; i++) {
-    if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
+    bool re               = false;
+    unsigned int uintData = 0;
+    if(treeModel->get_column_type(i) == COLUMN_TYPE_STRING) {
       node->get_value(i, data);
       re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
     } else {
@@ -106,8 +106,6 @@ bool Status::filter(const Gtk::TreeModel::iterator &node)
 bool Status::filter_children(const Gtk::TreeModel::iterator &node)
 {
   std::string data;
-  unsigned int uintData = 0;
-  bool re = false;
   const uint num_columns = s_view->get_n_columns();
   auto treeModel         = s_view->get_model();
   auto children          = node->children();
@@ -115,7 +113,9 @@ bool Status::filter_children(const Gtk::TreeModel::iterator &node)
   for(auto iter = children.begin(); iter != children.end(); iter++) {
     auto row = *iter;
     for(uint i = 0; i < num_columns; i++) {
-      if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
+      bool re               = false;
+      unsigned int uintData = 0;
+      if(treeModel->get_column_type(i) == COLUMN_TYPE_STRING) {
         row.get_value(i, data);
         re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
       } else {
@@ -200,6 +200,8 @@ void Status::set_apply_signal_handler(const Glib::SignalProxyProperty::SlotType 
 }
 
 std::shared_ptr<Gtk::TreeView> Status::get_view() { return s_view; }
+
+std::shared_ptr<Gtk::ScrolledWindow> Status::get_window() { return s_win; }
 
 Glib::ustring Status::get_selection_text() const { return s_status_selection->get_active_text(); }
 

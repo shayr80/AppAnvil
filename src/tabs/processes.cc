@@ -45,6 +45,7 @@ void Processes::add_data_to_record(const std::string &unconfined)
     add_row_from_line(col_record, line);
   }
 
+  col_record->reselect_rows();
   refresh();
 }
 
@@ -167,7 +168,7 @@ bool Processes::filter_children(const Gtk::TreeModel::iterator &node)
   return false;
 }
 
-Processes::Processes() : col_record{StatusColumnRecord::create(Status::get_view(), col_names)}
+Processes::Processes() : col_record{StatusColumnRecord::create(Status::get_view(), Status::get_window(), col_names)}
 {
   // Set the Processes::refresh function to be called whenever
   // the searchbar and checkboxes are updated
