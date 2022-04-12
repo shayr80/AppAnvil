@@ -15,6 +15,7 @@
 #include <gtkmm/treeview.h>
 
 constexpr auto UNKNOWN_STATUS = "unknown";
+const unsigned int G_TYPE_STRING_U = static_cast<unsigned int>(G_TYPE_STRING); // NOLINT(hicpp-signed-bitwise)
 
 class Status : public Gtk::ScrolledWindow
 {
@@ -96,8 +97,42 @@ protected:
    */
   void remove_status_selection();
 
-  // Should probably add a description!
+  /**
+   * @brief Attempts to parse the passed string to a Json::Value. 
+   * Throws an exception if the string cannot be parsed (invalid Json format)
+   *
+   * @param raw_json String containing Json data to be parsed 
+   * @returns A Json::Value parsed from the passed string
+   */
   static Json::Value parse_JSON(const std::string &raw_json);
+
+  /**
+   * @brief Return the Gtk::SearchEntry associated with this class
+   *
+   * @returns The Gtk::SearchEntry data member used by this class
+   */
+  std::shared_ptr<Gtk::SearchEntry> get_search();
+
+  /**
+   * @brief Return the Gtk::CheckButton labeled 'Use Regex' associated with this class
+   *
+   * @returns The Gtk::CheckButton data member named s_use_regex used by this class
+   */
+  std::shared_ptr<Gtk::CheckButton> get_use_regex();
+
+  /**
+   * @brief Return the Gtk::CheckButton labeled 'Match Case' associated with this class
+   *
+   * @returns The Gtk::CheckButton data member named s_match_case used by this class
+   */
+  std::shared_ptr<Gtk::CheckButton> get_match_case();
+
+  /**
+   * @brief Return the Gtk::CheckButton labeled 'Whole Word' associated with this class
+   *
+   * @returns The Gtk::CheckButton data member named s_whole_word used by this class
+   */
+  std::shared_ptr<Gtk::CheckButton> get_whole_word();
 
 private:
   // GUI Builder to parse UI from xml file
@@ -109,10 +144,10 @@ private:
   std::unique_ptr<Gtk::Box> s_box;
 
   // Widgets related to searchbar
-  std::unique_ptr<Gtk::SearchEntry> s_search;
-  std::unique_ptr<Gtk::CheckButton> s_use_regex;
-  std::unique_ptr<Gtk::CheckButton> s_match_case;
-  std::unique_ptr<Gtk::CheckButton> s_whole_word;
+  std::shared_ptr<Gtk::SearchEntry> s_search;
+  std::shared_ptr<Gtk::CheckButton> s_use_regex;
+  std::shared_ptr<Gtk::CheckButton> s_match_case;
+  std::shared_ptr<Gtk::CheckButton> s_whole_word;
   std::unique_ptr<Gtk::Label> s_found_label;
 
   // Widgets related to changing profile status (above search)

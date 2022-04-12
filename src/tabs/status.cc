@@ -56,18 +56,19 @@ bool Status::filter(const std::string &str, const std::string &rule, const bool 
 bool Status::filter(const Gtk::TreeModel::iterator &node)
 {
   std::string data;
-  unsigned int uintData;
-  bool re;
+  unsigned int uintData = 0;
+  bool re = false;
   const uint num_columns = s_view->get_n_columns();
   auto treeModel         = s_view->get_model();
 
   for(uint i = 0; i < num_columns; i++) {
-    if (treeModel->get_column_type(i) == G_TYPE_STRING) {
+    if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
       node->get_value(i, data);
       re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
     } else {
       node->get_value(i, uintData);
-      re = Status::filter(std::to_string(uintData), s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
+      re = Status::filter(std::to_string(uintData), s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(),
+                          s_whole_word->get_active());
     }
 
     if(re) {
@@ -76,14 +77,14 @@ bool Status::filter(const Gtk::TreeModel::iterator &node)
   }
 
   auto children = node->children();
-  if (!children.empty()) {
+  if(!children.empty()) {
     return filter_children(node);
   }
 
   auto parent = node->parent();
   while(parent) {
     for(uint i = 0; i < num_columns; i++) {
-      if(treeModel->get_column_type(i) == G_TYPE_STRING) {
+      if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
         parent->get_value(i, data);
         re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
       } else {
@@ -102,19 +103,19 @@ bool Status::filter(const Gtk::TreeModel::iterator &node)
   return false;
 }
 
-bool Status::filter_children(const Gtk::TreeModel::iterator &node) 
+bool Status::filter_children(const Gtk::TreeModel::iterator &node)
 {
   std::string data;
-  unsigned int uintData;
-  bool re;
+  unsigned int uintData = 0;
+  bool re = false;
   const uint num_columns = s_view->get_n_columns();
   auto treeModel         = s_view->get_model();
   auto children          = node->children();
-    
+
   for(auto iter = children.begin(); iter != children.end(); iter++) {
     auto row = *iter;
     for(uint i = 0; i < num_columns; i++) {
-      if(treeModel->get_column_type(i) == G_TYPE_STRING) {
+      if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
         row.get_value(i, data);
         re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
       } else {
@@ -124,12 +125,10 @@ bool Status::filter_children(const Gtk::TreeModel::iterator &node)
       }
 
       if(re) {
-        //auto path = treeModel->get_path(row);
-        //s_view->expand_to_path(path);
         return true;
       }
 
-      if (!row.children().empty() && filter_children(row)) {
+      if(!row.children().empty() && filter_children(row)) {
         return true;
       }
     }
@@ -137,7 +136,7 @@ bool Status::filter_children(const Gtk::TreeModel::iterator &node)
     auto parent = node->parent();
     while(parent) {
       for(uint i = 0; i < num_columns; i++) {
-        if(treeModel->get_column_type(i) == G_TYPE_STRING) {
+        if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
           parent->get_value(i, data);
           re =
               Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
@@ -173,6 +172,14 @@ Json::Value Status::parse_JSON(const std::string &raw_json)
 
   return root;
 }
+
+std::shared_ptr<Gtk::SearchEntry> Status::get_search() { return s_search; }
+
+std::shared_ptr<Gtk::CheckButton> Status::get_use_regex() { return s_use_regex; }
+
+std::shared_ptr<Gtk::CheckButton> Status::get_match_case() { return s_match_case; }
+
+std::shared_ptr<Gtk::CheckButton> Status::get_whole_word() { return s_whole_word; }
 
 void Status::set_status_label_text(const std::string &str) { s_found_label->set_text(str); }
 
