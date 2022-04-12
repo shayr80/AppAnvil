@@ -79,6 +79,9 @@ uint StatusColumnRecord::filter_rows()
     }
   }
 
+  // Refilter every row in table, deciding wheter they should be visible or not.
+  filter_model->refilter();
+
   return num_visible;
 }
 
@@ -99,9 +102,6 @@ uint StatusColumnRecord::count_child_rows(const Gtk::TreeModel::iterator &node)
       num_visible += count_child_rows(row);
     }
   }
-
-  // Refilter every row in table, deciding wheter they should be visible or not.
-  filter_model->refilter();
 
   return num_visible;
 }

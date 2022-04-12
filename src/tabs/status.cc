@@ -84,7 +84,9 @@ bool Status::filter(const Gtk::TreeModel::iterator &node)
   auto parent = node->parent();
   while(parent) {
     for(uint i = 0; i < num_columns; i++) {
-      if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
+      bool re               = false;
+      unsigned int uintData = 0;
+      if(treeModel->get_column_type(i) == COLUMN_TYPE_STRING) {
         parent->get_value(i, data);
         re = Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
       } else {
@@ -136,7 +138,9 @@ bool Status::filter_children(const Gtk::TreeModel::iterator &node)
     auto parent = node->parent();
     while(parent) {
       for(uint i = 0; i < num_columns; i++) {
-        if(treeModel->get_column_type(i) == G_TYPE_STRING_U) {
+        bool re               = false;
+        unsigned int uintData = 0;
+        if(treeModel->get_column_type(i) == COLUMN_TYPE_STRING) {
           parent->get_value(i, data);
           re =
               Status::filter(data, s_search->get_text(), s_use_regex->get_active(), s_match_case->get_active(), s_whole_word->get_active());
@@ -228,6 +232,7 @@ Status::Status()
   s_win->set_policy(Gtk::PolicyType::POLICY_AUTOMATIC, Gtk::PolicyType::POLICY_AUTOMATIC);
   s_win->set_hexpand();
   s_win->set_vexpand();
+  //s_view->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
 
   this->add(*s_box);
 }

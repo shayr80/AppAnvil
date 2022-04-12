@@ -149,8 +149,8 @@ public:
    * @param pid, The process id to search for
    * @param parent, The TreeRow whose children are to be searched for `pid`
    *
-   * @returns A bool that represents whether a TreeRow with a pid that matches `pid` was
-   * found in the children of `parent`
+   * @returns `true` if a TreeRow with a pid that matches `pid` was
+   * found in the children of `parent`, `false` otherwise
    */
   bool pid_exists_in_child(unsigned int pid, const Gtk::TreeRow &parent);
 

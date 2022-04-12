@@ -12,6 +12,7 @@
 #include <gtkmm/label.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/searchentry.h>
+#include <gtkmm/treeselection.h>
 #include <gtkmm/treeview.h>
 #include <memory>
 
@@ -29,7 +30,7 @@ public:
 
 protected:
   bool filter(const Gtk::TreeModel::iterator &node);
-  bool filter_children(const Gtk::TreeModel::iterator &node);
+  virtual bool filter_children(const Gtk::TreeModel::iterator &node);
 
   /**
    * @brief Decide whether a string should be added to the table
@@ -141,6 +142,9 @@ protected:
    */
   std::shared_ptr<Gtk::CheckButton> get_whole_word();
 
+  // clang-tidy complains about the `COLUMN_TYPE_STRING` macro, so we assign it here and tell clang-tidy not to look at it
+  static constexpr unsigned int COLUMN_TYPE_STRING = G_TYPE_STRING; // NOLINT
+
 private:
   // GUI Builder to parse UI from xml file
   Glib::RefPtr<Gtk::Builder> builder;
@@ -166,8 +170,6 @@ private:
   // Misc
   template<typename T_Widget> static std::unique_ptr<T_Widget> get_widget(Glib::ustring name, const Glib::RefPtr<Gtk::Builder> &builder);
 
-  // clang-tidy complains about the `COLUMN_TYPE_STRING` macro, so we assign it here and tell clang-tidy not to look at it
-  static constexpr unsigned int COLUMN_TYPE_STRING = G_TYPE_STRING; // NOLINT
 };
 
 #endif // TABS_STATUS_H
