@@ -16,7 +16,6 @@
 #include <memory>
 
 constexpr auto UNKNOWN_STATUS = "unknown";
-const unsigned int G_TYPE_STRING_U = static_cast<unsigned int>(G_TYPE_STRING); // NOLINT(hicpp-signed-bitwise)
 
 class Status : public Gtk::ScrolledWindow
 {
