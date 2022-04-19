@@ -2,6 +2,7 @@
 #define TABS_PROFILES_H
 
 #include "status.h"
+#include "TrieNode.h"
 
 #include <memory>
 #include <string>
@@ -14,6 +15,10 @@ public:
   virtual void add_data_to_record(const std::string &data);
   void refresh();
   void set_status_change_signal_handler(sigc::slot<void(std::string, std::string, std::string)> change_fun);
+
+  void addWord(TrieNode*&, std::string, Json::Value);
+  std::string getCurrPath(std::string);
+  std::string setCurrPath(std::string);
 
 protected:
   // Signal handlers

@@ -12,21 +12,99 @@
 // add_data_to_record() is based on assumptions about the output of aa-status.
 // If those assumptions are incorrect, or aa-status changes, this could crash.
 void Profiles::add_data_to_record(const std::string &data)
-{
-  Json::Value root     = Status::parse_JSON(data);
+{ 
+  Json::Value root = Status::parse_JSON(data);
   Json::Value profiles = root["profiles"];
 
+  //set up root for DLB
+  TrieNode* dlbRoot = new TrieNode();
+  dlbRoot->data = ".";
+  dlbRoot->deeper = new std::list<TrieNode>();
+  
   col_record->clear();
-
-  for(auto prof = profiles.begin(); prof != profiles.end(); prof++) {
-    std::string key = prof.key().asString();
-    auto row        = col_record->new_row();
-    row->set_value(0, key);
-    row->set_value(1, profiles.get(key, UNKNOWN_STATUS).asString());
+  for(auto prof = profiles.begin(); prof != profiles.end(); prof++)
+  {
+    Profiles::addWord(dlbRoot, prof.key().asString(), profiles);
   }
-
   col_record->reselect_rows();
   refresh();
+} 
+
+void Profiles::addWord(TrieNode*& root, std::string key, Json::Value pfs)
+{
+	std::string path; 
+	if (key.at(0) == '/')  path = key.substr(1); //get rid of first '/'
+	else 			path = key;
+	int N = std::count(path.begin(), path.end(), '/');
+	
+	TrieNode* currNode = root;
+	std::list<TrieNode>* currLayer = currNode->deeper;
+	Gtk::TreeRow curr_row = currNode->row;
+	for (int i=0; i < N + 1; i++) //for each directory in path
+	{
+		std::string currPath = getCurrPath(path); //get current directory
+		path = setCurrPath(path); //update path
+		bool foundDir = false;
+		if (currLayer->size() != 0)
+		{
+			std::list<TrieNode> g = *currLayer;
+			std::list<TrieNode>::iterator it;
+			//look at each node in the current layer
+			for (it = g.begin(); it != g.end(); ++it)
+			{
+				if ((*it).data.compare(currPath) == 0) //if the nodes match
+				{
+					foundDir = true;
+					currNode = &(*it);
+					break;
+				}
+			}
+		}
+		
+		//if node wasn't found in layer
+		if (!foundDir)	
+		{
+			//make a new node
+			TrieNode* newNode = new TrieNode();
+			newNode->data = currPath;
+			newNode->deeper = new std::list<TrieNode>();
+			
+			//add child row to root or branch
+			Gtk::TreeRow newRow;
+			if (i==0) 	newRow = col_record->new_row(); //root
+			else		newRow = col_record->new_child_row(curr_row); //branch
+			newNode->row = newRow;	
+			
+			//update visible data
+			newRow-> set_value(0, currPath);
+			if (i==N)	newRow-> set_value(1, pfs.get(key, UNKNOWN_STATUS).asString());
+			
+			//push to current list
+			currLayer->push_back(*newNode);
+
+			//update current node
+			currNode = newNode;
+		}	
+		//update current layer
+		currLayer = currNode->deeper;
+		//update current row
+		curr_row = currNode->row;
+	}
+	
+}
+
+std::string Profiles::getCurrPath(std::string path)
+{
+	int ind = path.find("/");
+	if (ind == -1) return path;
+	return path.substr(0, ind);	// "/" is delimiter
+}
+
+std::string Profiles::setCurrPath(std::string path)
+{
+	int ind = path.find("/");
+	if (ind == -1) return path;
+	return path.substr(ind+1);	// return path until end
 }
 
 void Profiles::change_status()
